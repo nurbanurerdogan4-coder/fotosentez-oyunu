@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Fotosentez Oyunu</title>
+
+<style>
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #d9f7d9, #b8e8ff);
+    text-align: center;
+    min-height: 100vh;
+    padding-top: 40px;
+}
+
+.kutu {
+    background: white;
+    width: 90%;
+    max-width: 650px;
+    margin: auto;
+    padding: 30px;
+    border-radius: 25px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+h1 {
+    color: #16834b;
+}
+
+.altbaslik {
+    color: #557064;
+}
+
+.soru {
+    font-size: 22px;
+    font-weight: bold;
+    margin: 30px 0 20px;
+}
+
+button {
+    width: 100%;
+    padding: 14px;
+    margin: 8px 0;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    cursor: pointer;
+    background: #dff3e3;
+    transition: 0.2s;
+}
+
+button:hover {
+    background: #b8e6c0;
+    transform: scale(1.02);
+}
+
+.muzik {
+    background: #fff0b8;
+    margin-bottom: 15px;
+}
+
+.dogru {
+    background: #8ee09d !important;
+}
+
+.yanlis {
+    background: #ffaaaa !important;
+}
+
+#mesaj {
+    font-size: 19px;
+    font-weight: bold;
+    margin: 15px;
+}
+
+#puan {
+    color: #16834b;
+    font-weight: bold;
+}
+
+#sonuc {
+    font-size: 25px;
+    color: #16834b;
+    font-weight: bold;
+}
+
+.tekrar {
+    background: #16834b;
+    color: white;
+}
+
+.emoji {
+    font-size: 55px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="kutu">
+
+<div class="emoji">🌱☀️</div>
+
+<h1>Fotosentez Bilgi Yarışı</h1>
+
+<p class="altbaslik">
+Fotosentez bilgini test etmeye hazır mısın?
+</p>
+
+<button class="muzik" onclick="muzikAc()">
+🎵 Müziği Aç / Kapat
+</button>
+
+<hr>
+
+<p>
+Soru: <b id="sayi">1</b> / 10
+</p>
+
+<div class="soru" id="soru"></div>
+
+<div id="secenekler"></div>
+
+<div id="mesaj"></div>
+
+<p>
+⭐ Puan: <span id="puan">0</span>
+</p>
+
+<div id="bitis"></div>
+
+</div>
+
+
+<script>
+
+let sorular = [
+
+{
+soru: "Fotosentez hangi organelde gerçekleşir?",
+secenekler: ["Mitokondri", "Kloroplast", "Ribozom", "Çekirdek"],
+dogru: 1
+},
+
+{
+soru: "Fotosentez için temel enerji kaynağı nedir?",
+secenekler: ["Toprak", "Su", "Güneş ışığı", "Oksijen"],
+dogru: 2
+},
+
+{
+soru: "Bitkiler fotosentez sırasında hangi gazı kullanır?",
+secenekler: ["Oksijen", "Azot", "Karbondioksit", "Helyum"],
+dogru: 2
+},
+
+{
+soru: "Fotosentez sonucunda hangi gaz açığa çıkar?",
+secenekler: ["Oksijen", "Karbondioksit", "Azot", "Hidrojen"],
+dogru: 0
+},
+
+{
+soru: "Klorofil nedir?",
+secenekler: [
+"Bir mineral",
+"Yeşil bir pigment",
+"Bir vitamin",
+"Bir gaz"
+],
+dogru: 1
+},
+
+{
+soru: "Bitki fotosentez için suyu çoğunlukla nereden alır?",
+secenekler: [
+"Çiçeklerinden",
+"Köklerinden",
+"Meyvelerinden",
+"Tohumlarından"
+],
+dogru: 1
+},
+
+{
+soru: "Fotosentez sonucunda hangi organik besin oluşur?",
+secenekler: [
+"Glikoz",
+"Su",
+"Oksijen",
+"Mineral"
+],
+dogru: 0
+},
+
+{
+soru: "Fotosentez hızını etkileyen faktörlerden biri hangisidir?",
+secenekler: [
+"Işık şiddeti",
+"Saksının rengi",
+"Bitkinin adı",
+"Yaprağın şekli"
+],
+dogru: 0
+},
+
+{
+soru: "Fotosentezde kullanılan gaz hangisidir?",
+secenekler: [
+"Oksijen",
+"Karbondioksit",
+"Azot",
+"Helyum"
+],
+dogru: 1
+},
+
+{
+soru: "Fotosentez yapan canlılar için aşağıdakilerden hangisi önemlidir?",
+secenekler: [
+"Işık",
+"Ses",
+"Müzik",
+"Rüzgar"
+],
+dogru: 0
+}
+
+];
+
+
+let soruNo = 0;
+let puan = 0;
+let muzikCalıyor = false;
+let ses;
+
+
+function karistir() {
+
+    sorular.sort(() => Math.random() - 0.5);
+
+}
+
+
+function soruyuGoster() {
+
+    if (soruNo >= sorular.length) {
+
+        oyunuBitir();
+
+        return;
+
+    }
+
+    document.getElementById("sayi").innerText =
+        soruNo + 1;
+
+    document.getElementById("soru").innerText =
+        sorular[soruNo].soru;
+
+    document.getElementById("puan").innerText =
+        puan;
+
+    document.getElementById("mesaj").innerText = "";
+
+    let alan =
+        document.getElementById("secenekler");
+
+    alan.innerHTML = "";
+
+    sorular[soruNo].secenekler.forEach(function(secenek, index) {
+
+        let buton = document.createElement("button");
+
+        buton.innerText = secenek;
+
+        buton.onclick = function() {
+
+            cevapla(buton, index);
+
+        };
+
+        alan.appendChild(buton);
+
+    });
+
+}
+
+
+function cevapla(buton, secilen) {
+
+    let dogru =
+        sorular[soruNo].dogru;
+
+    let butonlar =
+        document.querySelectorAll("#secenekler button");
+
+    butonlar.forEach(function(b) {
+
+        b.disabled = true;
+
+    });
+
+
+    if (secilen == dogru) {
+
+        buton.classList.add("dogru");
+
+        puan += 10;
+
+        document.getElementById("mesaj").innerText =
+            "✅ Doğru cevap! +10 puan 🎉";
+
+    } else {
+
+        buton.classList.add("yanlis");
+
+        butonlar[dogru].classList.add("dogru");
+
+        document.getElementById("mesaj").innerText =
+            "❌ Yanlış cevap! Doğru cevap yeşil gösterildi.";
+
+    }
+
+    document.getElementById("puan").innerText =
+        puan;
+
+
+    setTimeout(function() {
+
+        soruNo++;
+
+        soruyuGoster();
+
+    }, 1200);
+
+}
+
+
+function oyunuBitir() {
+
+    document.getElementById("soru").innerText =
+        "🎉 Oyun Bitti!";
+
+    document.getElementById("secenekler").innerHTML = "";
+
+    document.getElementById("mesaj").innerText =
+        "Fotosentez macerasını tamamladın! 🌱";
+
+    document.getElementById("bitis").innerHTML =
+        "<p id='sonuc'>⭐ " + puan +
+        " / 100 puan</p>" +
+
+        "<button class='tekrar' onclick='tekrarOyna()'>" +
+        "🔄 Tekrar Oyna" +
+        "</button>";
+
+}
+
+
+function tekrarOyna() {
+
+    soruNo = 0;
+
+    puan = 0;
+
+    document.getElementById("bitis").innerHTML = "";
+
+    karistir();
+
+    soruyuGoster();
+
+}
+
+
+function muzikAc() {
+
+    if (!muzikCalıyor) {
+
+        let AudioContext =
+            window.AudioContext ||
+            window.webkitAudioContext;
+
+        ses = new AudioContext();
+
+        let oscillator =
+            ses.createOscillator();
+
+        let gain =
+            ses.createGain();
+
+        oscillator.type = "sine";
+
+        oscillator.frequency.value = 440;
+
+        gain.gain.value = 0.03;
+
+        oscillator.connect(gain);
+
+        gain.connect(ses.destination);
+
+        oscillator.start();
+
+        muzikCalıyor = true;
+
+        document.querySelector(".muzik").innerText =
+            "🔇 Müziği Kapat";
+
+        window.muzikSesi = oscillator;
+
+    } else {
+
+        window.muzikSesi.stop();
+
+        muzikCalıyor = false;
+
+        document.querySelector(".muzik").innerText =
+            "🎵 Müziği Aç";
+
+    }
+
+}
+
+
+karistir();
+
+soruyuGoster();
+
+</script>
+
+</body>
+</html>
